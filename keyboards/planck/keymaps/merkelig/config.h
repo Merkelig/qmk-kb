@@ -45,3 +45,5 @@
 
 #define LEADER_NO_TIMEOUT
 #define LEADER_PER_KEY_TIMING
+//#define COMBO_COUNT 3
+#define COMBO_TERM 50

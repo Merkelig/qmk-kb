@@ -15,6 +15,9 @@
  */
 
 #include QMK_KEYBOARD_H
+#include "keymap_norwegian.h"
+#include "g/keymap_combo.h"
+
 
 enum planck_layers { _QWERTY, _DVORAK, _NUMPAD, _LOWER, _RAISE, _ADJUST };
 
@@ -53,14 +56,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Shift|   ;  |   Q  |   J  |   K  |   X  |   B  |   M  |   W  |   V  |   Z  |Enter |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Ctrl | Lead | GUI  | Alt  |Lower |    Space    |Raise | Left | Down |  Up  |Right |
+ * | Ctrl | Lead | GUI  | Alt  |Lower |    Space    |Raise | RCTL | LSFT |  Up  |PGDN |
  * `-----------------------------------------------------------------------------------'
  */
 [_DVORAK] = LAYOUT_planck_grid(
     KC_TAB,  KC_QUOT, KC_COMM, KC_DOT,  KC_P,    KC_Y,    KC_F,    KC_G,    KC_C,    KC_R,    KC_L,    KC_BSPC,
     KC_ESC,  KC_A,    KC_O,    KC_E,    KC_U,    KC_I,    KC_D,    KC_H,    KC_T,    KC_N,    KC_S,    KC_SLSH,
     KC_LSFT, KC_SCLN, KC_Q,    KC_J,    KC_K,    KC_X,    KC_B,    KC_M,    KC_W,    KC_V,    KC_Z,    KC_ENT ,
-    KC_LCTL, QK_LEAD, KC_LGUI, KC_LALT, LOWER,   KC_RSFT, KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT
+    KC_LCTL, QK_LEAD, KC_LALT, KC_LGUI, LOWER,   KC_RSFT, KC_SPC,  RAISE,   KC_RCTL, KC_LSFT, KC_RALT,   KC_PGDN
 ),
 
 /* numpad
@@ -121,9 +124,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Adjust (Lower + Raise)
  *                      v------------------------RGB CONTROL--------------------v
  * ,-----------------------------------------------------------------------------------.
- * |RESET |      |      | RGB  |RGBMOD| HUE+ | HUE- | SAT+ | SAT- |BRGTH+|BRGTH-|  Del |
+ * |RESET |      |      | RGB  |RGBMOD| HUE+ | HUE- | SAT+ | SAT- |Dvorak|QWERTY|  Del |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |Debug |      |MUSmod|Aud on|Audoff|AGnorm|AGswap|Qwerty|      |Dvorak|      |
+ * |Debug |      |MUSmod|Aud on|Audoff|AGnorm|Left  | Down | Up   | Right|      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |Voice-|Voice+|Mus on|Musoff|MIDIon|MIDIof|      |      |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
@@ -131,40 +134,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_ADJUST] = LAYOUT_planck_grid(
-    QK_BOOT, _______, _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, KC_DEL ,
-    DB_TOGG, EE_CLR,  MU_NEXT, AU_ON,   AU_OFF,  AG_NORM, AG_SWAP, QWERTY,  _______, DVORAK,  _______, _______,
+    QK_BOOT, _______, _______, RGB_TOG, RGB_MOD, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, DVORAK, QWERTY, KC_DEL ,
+    DB_TOGG, EE_CLR,  MU_NEXT, AU_ON,   AU_OFF,  AG_NORM, _______, KC_LEFT,  KC_DOWN, KC_UP,  KC_RGHT, _______,
     _______, AU_PREV, AU_NEXT, MU_ON,   MU_OFF,  MI_ON,   MI_OFF,  _______, _______, _______, _______, _______,
     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
 )
 
 };
-/* clang-format on */
-
-const uint16_t PROGMEM combo_ae[] = {KC_C, KC_L, COMBO_END}; // RALT(KC_Z)
-const uint16_t PROGMEM combo_oe[] = {KC_C, KC_R, COMBO_END}; // RALT(KC_L)
-const uint16_t PROGMEM combo_aa[] = {KC_R, KC_L, COMBO_END}; // RALT(KC_W)
-
-combo_t key_combos_win[] = {
-    COMBO(combo_ae, RALT(KC_Z)),
-    COMBO(combo_oe, RALT(KC_L)),
-    COMBO(combo_aa, RALT(KC_W)),
-};
-
-combo_t key_combos[3];
-
-void set_combos_win(void){
-    memcpy(key_combos, key_combos_win, sizeof key_combos);
-}
-
-/* #ifdef AUDIO_ENABLE */
-/* float leader_start_song[][2] = SONG(ONE_UP_SOUND); */
-/* float leader_succeed_song[][2] = SONG(ALL_STAR); */
-/* float leader_fail_song[][2] = SONG(RICK_ROLL); */
-/* #endif */
-
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    set_combos_win();
     return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
 }
 
@@ -172,7 +150,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case QWERTY:
             if (record->event.pressed) {
-                //print("mode just switched to qwerty and this is a huge string\n");
                 set_single_persistent_default_layer(_QWERTY);
             }
             return false;
@@ -180,7 +157,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        case DVORAK:
             if (record->event.pressed) {
                 set_single_persistent_default_layer(_DVORAK);
-                //set_combos_win();
             }
             return false;
             break;

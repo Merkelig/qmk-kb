@@ -1,0 +1,5 @@
+SUBS(helloWorld, "QMK is pretty rad eh?", KC_H, KC_J)
+COMB(AE, NO_AE, KC_C, KC_L)
+COMB(OE, NO_OSTR, KC_C, KC_R)
+COMB(AA, NO_ARNG, KC_R, KC_L)
+COMB(CAPS, KC_CAPS, KC_G, KC_C)
